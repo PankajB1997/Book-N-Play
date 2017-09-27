@@ -6,17 +6,17 @@ const LocalStrategy = require('passport-local').Strategy;
 const User = require('../models/user');
 
 // Register
-router.get('/register', function(req, res){
+router.get('/register', function(req, res) {
 	res.render('register');
 });
 
 // Login
-router.get('/login', function(req, res){
+router.get('/login', function(req, res) {
 	res.render('login');
 });
 
 // Register
-router.post('/register', function(req, res){
+router.post('/register', function(req, res) {
 	let name = req.body.name;
 	let email = req.body.email;
 	let username = req.body.username;
@@ -59,21 +59,35 @@ router.post('/register', function(req, res){
 });
 
 passport.use(new LocalStrategy(
-  function(username, password, done) {
-    User.getUserByUsername(username, function (error, user) {
+  function(usernameOrEmail, password, done) {
+    User.getUserByUsername(usernameOrEmail, function (error, user) {
 			if (error) throw error;
-			if (!user) {
-				return done(null, false, {message: 'An account with this username does not exist.'});
+			if (user != null) {
+				User.comparePassword(password, user.password, function (error, isMatch) {
+					if (error) throw error;
+					if (isMatch) {
+						return done(null, user);
+					} else {
+						return done(null, false, {message: 'The password is invalid.'});
+					}
+				});
 			}
-
-			User.comparePassword(password, user.password, function (error, isMatch) {
-				if (error) throw error;
-				if (isMatch) {
-					return done(null, user);
-				} else {
-					return done(null, false, {message: 'The password is invalid.'});
-				}
-			});
+			else {
+				User.getUserByEmail(usernameOrEmail, function (error, userByEmail) {
+					if (error) throw error;
+					if (!userByEmail) {
+						return done(null, false, {message: 'An account with this username or email does not exist.'});
+					}
+					User.comparePassword(password, userByEmail.password, function (error, isMatch) {
+						if (error) throw error;
+						if (isMatch) {
+							return done(null, userByEmail);
+						} else {
+							return done(null, false, {message: 'The password is invalid.'});
+						}
+					});
+				});
+			}
 		});
   }
 ));
