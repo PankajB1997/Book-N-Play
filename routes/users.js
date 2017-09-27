@@ -15,6 +15,11 @@ router.get('/login', function(req, res) {
 	res.render('login');
 });
 
+// Forgot Password
+router.get('/forgotPassword', function(req, res) {
+	res.render('forgotPassword');
+});
+
 // Register
 router.post('/register', function(req, res) {
 	let name = req.body.name;
@@ -112,6 +117,35 @@ router.get('/logout', function(req, res) {
 	req.logout();
 	req.flash('success_msg', 'You have been logged out.');
 	res.redirect('/users/login');
+});
+
+router.post('/forgotPassword', function(req, res) {
+	let usernameOrEmail = req.body.usernameOrEmail;
+	req.checkBody('usernameOrEmail', 'Username/Email is required').notEmpty();
+	let errors = req.validationErrors();
+	if (errors) {
+		res.render('forgotPassword', {
+			errors: errors,
+		});
+	}
+	else {
+		User.getUserByUsername(usernameOrEmail, function (error, user) {
+			if (error) throw error;
+			if (user != null) {
+
+			}
+			else {
+				User.getUserByEmail(usernameOrEmail, function (error, userByEmail) {
+					if (error) throw error;
+					if (!userByEmail) {
+						req.flash('error_msg', 'An account with this username or email does not exist.');
+						res.redirect('/users/forgotPassword');
+					}
+
+				});
+			}
+		});
+	}
 });
 
 module.exports = router;
