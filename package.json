@@ -1,0 +1,35 @@
+{
+  "name": "booknplay",
+  "version": "1.0.0",
+  "description": "A web app to RSVP to game sessions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PankajB1997/BookNPlay.git"
+  },
+  "author": "Pankaj Bhootra",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PankajB1997/BookNPlay/issues"
+  },
+  "homepage": "https://github.com/PankajB1997/BookNPlay#readme",
+  "dependencies": {
+    "bcryptjs": "*",
+    "body-parser": "*",
+    "connect-flash": "*",
+    "cookie-parser": "^1.4.1",
+    "express": "*",
+    "express-handlebars": "*",
+    "express-messages": "*",
+    "express-session": "*",
+    "express-validator": "*",
+    "mongodb": "*",
+    "mongoose": "*",
+    "passport": "*",
+    "passport-http": "*",
+    "passport-local": "*"
+  }
+}
