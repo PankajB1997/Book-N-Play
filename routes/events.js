@@ -49,7 +49,7 @@ router.post('/new-event', function(req, res) {
       if (error) throw error;
     });
     req.flash('success_msg', 'This game was successfully added!');
-    res.redirect('/');
+    return res.redirect('/');
 	}
 });
 

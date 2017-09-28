@@ -96,7 +96,7 @@ router.post('/register', function(req, res) {
     // user already exists in persistent collection...
     if (existingPersistentUser) {
 			req.flash('error_msg', 'You have already signed up and confirmed your account. Did you forget your password?');
-			res.redirect('/users/login');
+			return res.redirect('/users/login');
 		}
     // a new user
     if (newTempUser) {
@@ -104,12 +104,12 @@ router.post('/register', function(req, res) {
         emailVerification.sendVerificationEmail(email, URL, function(error, info) {
             if (error) throw error;
             req.flash('success_msg', 'A confirmation email is on the way! Kindly verify your email to complete your registration.');
-						res.redirect('/users/login');
+						return res.redirect('/users/login');
         });
     // user already exists in temporary collection...
     } else {
 			req.flash('error_msg', 'You have already signed up. Please check your email to verify your account.');
-			res.redirect('/users/login');
+			return res.redirect('/users/login');
     }
 	});
 });
@@ -123,10 +123,10 @@ router.get('/verify-email/:URL', function(req, res) {
 						if (error) throw error;
 					});
 					req.flash('success_msg', 'You are successfully registered! You may login now.');
-					res.redirect('/users/login');
+					return res.redirect('/users/login');
         } else {
 					req.flash('error_msg', 'Sorry. It seems your account has expired. Please sign up again.');
-					res.redirect('/users/register');
+					return res.redirect('/users/register');
         }
     });
 });
@@ -178,13 +178,13 @@ passport.deserializeUser(function(id, done) {
 router.post('/login',
   passport.authenticate('local', { successRedirect: '/', failureRedirect: '/users/login', failureFlash: true }),
   function(req, res) {
-		res.redirect('/');
+		return res.redirect('/');
   });
 
 router.get('/logout', function(req, res) {
 	req.logout();
 	req.flash('success_msg', 'See ya later!');
-	res.redirect('/users/login');
+	return res.redirect('/users/login');
 });
 
 router.post('/forgotPassword', function(req, res) {
@@ -230,7 +230,6 @@ router.post('/forgotPassword', function(req, res) {
 									if (error) throw error;
 									done(error, token, userByEmail);
 								});
-
 							}
 						});
 					}
@@ -262,7 +261,7 @@ router.post('/forgotPassword', function(req, res) {
 			}
 		], function (error) {
 			if (error) throw error;
-			res.redirect('/users/login');
+			return res.redirect('/users/login');
 		});
 	}
 });
@@ -272,7 +271,7 @@ router.get('/reset-password/:token', function (req, res) {
 		if (error) throw error;
 		if (!user) {
 			req.flash('error_msg', 'Your password reset request is either invalid or has expired.');
-			res.redirect('/users/forgotPassword');
+			return res.redirect('/users/forgotPassword');
 		} else {
 			res.render('reset-password', { token: req.params.token });
 		}
@@ -286,7 +285,7 @@ router.post('/reset-password/:token', function (req, res) {
 				if (error) throw error;
 				if (!user) {
 					req.flash('error_msg', 'Your password reset request is either invalid or has expired.');
-					res.redirect('/users/forgotPassword');
+					return res.redirect('/users/forgotPassword');
 				} else {
 					if (req.body.password === req.body.confirmPassword) {
 						User.updateUserPasswordByEmail(user.email, function (error) {
@@ -299,7 +298,7 @@ router.post('/reset-password/:token', function (req, res) {
 					}
 					else {
 						req.flash('error_msg', 'The passwords do not match.');
-						res.redirect('back');
+						return res.redirect('back');
 					}
 				}
 			});
@@ -326,7 +325,7 @@ router.post('/reset-password/:token', function (req, res) {
     }
 	], function (error) {
 		if (error) throw error;
-		res.redirect('/');
+		return res.redirect('/');
 	});
 });
 

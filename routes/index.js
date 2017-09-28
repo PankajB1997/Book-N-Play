@@ -40,7 +40,7 @@ function ensureAuthenticated(req, res, next) {
 		return next();
 	} else {
 		req.flash('error_msg','Please login or sign up to continue.');
-		res.redirect('/users/login');
+		return res.redirect('/users/login');
 	}
 }
 
@@ -64,7 +64,7 @@ router.get('/users/reset-password', ensureNotAuthenticated, function(req, res) {
 function ensureNotAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {
 		req.flash('error_msg', 'You are already logged in.');
-		res.redirect('/');
+		return res.redirect('/');
 	}	else {
 		return next();
 	}
