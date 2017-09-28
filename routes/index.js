@@ -15,7 +15,7 @@ function ensureAuthenticated(req, res, next) {
 	}
 }
 
-// Don't allow user to access login/register page if already logged in
+// Don't allow user to access login/register/forgotPassword page if already logged in
 router.get('/users/login', ensureNotAuthenticated, function(req, res) {
 	res.render('login');
 });
