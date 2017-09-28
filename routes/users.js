@@ -247,10 +247,12 @@ router.post('/forgotPassword', function(req, res) {
 	        to: user.email,
 	        from: 'password-robot@booknplay.com',
 	        subject: 'Reset your password',
-	        text: 'You are receiving this email because you (or someone else) requested a password reset for your account at Book-N-Play.\n\n' +
-	          'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+	        text: 'Hello ' + user.name + ',\n\n' +
+						'You are receiving this email because you (or someone else) requested a password reset for your account at Book-N-Play.\n' +
+	          'Please click on the following link, or paste this into your browser to complete the process:\n' +
 	          'http://' + req.headers.host + '/users/reset-password/' + token + '\n\n' +
-	          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+	          'If you did not request this, please ignore this email and your password will remain unchanged.\n\nRegards,\nBook-N-Play.'
+
 	      };
 	      smtpTransport.sendMail(mailOptions, function(err) {
 	        req.flash('success_msg', 'An email has been sent to ' + user.email + ' with further instructions.');
