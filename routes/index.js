@@ -1,9 +1,13 @@
 var express = require('express');
 var router = express.Router();
 
-// Get Homepage
+// Don't allow user access to events list or add new event feature if not logged in
 router.get('/', ensureAuthenticated, function(req, res) {
 	res.render('index');
+});
+
+router.get('/events/new-event', ensureAuthenticated, function (req, res) {
+	res.render('new-event');
 });
 
 function ensureAuthenticated(req, res, next) {
