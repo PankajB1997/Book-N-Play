@@ -10,7 +10,7 @@ http://book-n-play.herokuapp.com/
 
 A NodeJS App deployed on Heroku, with Handlebars templating engine for front-end, ExpressJS for back-end and MongoDB with Mongoose ORM as database.
 
-Salient features include:-
+### Salient features include :-
 
 + Membership workflow
 1. Login with authentication using PassportJS
@@ -21,7 +21,8 @@ Salient features include:-
 1. Add new event capability for any logged in user
 2. Viewing a list of all upcoming events (only available to logged in users)
 
-+ More features to be added
+### More features to be added :-
+
 1. An RSVP system to allow users to signup to any upcoming event
 2. Allowing users to view a list of all users who RSVP'd to a given event
 3. Adding a comments section for every event, to allow users, RSVP's or not, to discuss about the event
