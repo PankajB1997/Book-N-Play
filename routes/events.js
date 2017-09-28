@@ -1,20 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+
 let uristring = process.env.MONGODB_URI || 'mongodb://localhost/booknplay';
-mongoose.connect(uristring, {
+mongoose.connect('mongodb://localhost/booknplay', {
   useMongoClient: true,
 });
 const db = mongoose.connection;
 
 const Event = require('../models/event');
-
-// View Upcoming Events List
-router.get('/events-list', function (req, res) {
-  Event.getUpcomingEventsList(function (error, eventsList) {
-    console.log(eventsList);
-  });
-});
 
 // Add new event
 router.get('/new-event', function (req, res) {

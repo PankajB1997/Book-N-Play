@@ -1,0 +1,9 @@
+<h2 class="page-header">List of upcoming games!</h2>
+{{#each eventsList}}
+<h3>{{eventTitle}}</h3><br>
+<b>Game:</b> {{eventType}}<br><br>
+<b>Starts:</b> {{formatDate eventStartDate}}<br><br>
+<b>Ends:</b> {{formatDate eventEndDate}}<br><br>
+<b>Details:</b><br> {{eventDescription}}<br>
+<hr>
+{{/each}}
