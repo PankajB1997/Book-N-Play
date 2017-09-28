@@ -9,7 +9,7 @@ const emailVerification = require('email-verification')(mongoose);
 const crypto = require('crypto');
 
 let uristring = process.env.MONGODB_URI || 'mongodb://localhost/booknplay';
-mongoose.connect('mongodb://localhost/booknplay', {
+mongoose.connect(uristring, {
   useMongoClient: true,
 });
 const db = mongoose.connection;

@@ -3,7 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 
 let uristring = process.env.MONGODB_URI || 'mongodb://localhost/booknplay';
-mongoose.connect('mongodb://localhost/booknplay', {
+mongoose.connect(uristring, {
   useMongoClient: true,
 });
 const db = mongoose.connection;
