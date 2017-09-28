@@ -7,6 +7,13 @@ const nodemailer = require('nodemailer');
 const async = require('async');
 const emailVerification = require('email-verification')(mongoose);
 const crypto = require('crypto');
+const username = require('username');
+
+function getUsername() {
+	username().then(username => {
+  	return username;
+	});
+}
 
 let uristring = process.env.MONGODB_URI || 'mongodb://localhost/booknplay';
 mongoose.connect(uristring, {
