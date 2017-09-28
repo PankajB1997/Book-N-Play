@@ -9,7 +9,9 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const mongo = require('mongodb');
+const User = require('./models/user');
 const mongoose = require('mongoose');
+
 mongoose.connect('mongodb://localhost/booknplay', {
   useMongoClient: true,
 });

@@ -2,8 +2,40 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const mongoose = require('mongoose');
+const emailVerification = require('email-verification')(mongoose);
+
+mongoose.connect('mongodb://localhost/booknplay', {
+  useMongoClient: true,
+});
+const db = mongoose.connection;
 
 const User = require('../models/user');
+
+// Email Verification Configuration
+emailVerification.configure({
+    verificationURL: 'http://localhost:3000/users/verify-email/${URL}',
+    persistentUserModel: User,
+    tempUserCollection: 'tempUser',
+    transportOptions: {
+        service: 'Gmail',
+        auth: {
+            user: 'booknplay7@gmail.com',
+            pass: 'booknplay'
+        }
+    },
+    verifyMailOptions: {
+        from: 'Do Not Reply: Book-N-Play <email.verification@booknplay.com>',
+        subject: 'Let\'s confirm your email!',
+        html: 'Welcome to Book-N-Play!<br><br>Click the following link to verify your account:<br><p>${URL}</p>',
+        text: 'Please confirm your account by clicking the following link: ${URL}'
+    }
+}, function(error, options) {
+  if (error) throw error;
+});
+emailVerification.generateTempUserModel(User, function(error, tempUserModel) {
+    if (error) throw error;
+});
 
 // Register
 router.get('/register', function(req, res) {
@@ -53,14 +85,46 @@ router.post('/register', function(req, res) {
 		});
 	}
 
-	User.createUser(newUser, function(error, user) {
-		if (error) throw error;
-		console.log(user);
+	// Email verification
+	let URL;
+	emailVerification.createTempUser(newUser, function(error, existingPersistentUser, newTempUser) {
+    if (error) throw error;
+    // user already exists in persistent collection...
+    if (existingPersistentUser) {
+			req.flash('error_msg', 'You have already signed up and confirmed your account. Did you forget your password?');
+			res.redirect('/users/login');
+		}
+    // a new user
+    if (newTempUser) {
+        URL = newTempUser[emailVerification.options.URLFieldName];
+        emailVerification.sendVerificationEmail(email, URL, function(error, info) {
+            if (error) throw error;
+            req.flash('success_msg', 'A confirmation email is on the way! Kindly verify your email to complete your registration.');
+						res.redirect('/users/login');
+        });
+    // user already exists in temporary collection...
+    } else {
+			req.flash('error_msg', 'You have already signed up. Please check your email to verify your account.');
+			res.redirect('/users/login');
+    }
 	});
+});
 
-	req.flash('success_msg', 'You are successfully registered! You may login now.');
-
-	res.redirect('/users/login');
+// user accesses the link that is sent
+router.get('/verify-email/:URL', function(req, res) {
+    let url = req.params.URL;
+    emailVerification.confirmTempUser(url, function(err, user) {
+        if (user) {
+					User.createUser(user, function(error, user) {
+						if (error) throw error;
+					});
+					req.flash('success_msg', 'You are successfully registered! You may login now.');
+					res.redirect('/users/login');
+        } else {
+					req.flash('error_msg', 'Sorry. It seems your account has expired. Please sign up again.');
+					res.redirect('/users/register');
+        }
+    });
 });
 
 passport.use(new LocalStrategy(
