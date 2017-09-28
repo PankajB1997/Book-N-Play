@@ -13,7 +13,7 @@ const User = require('./models/user');
 const mongoose = require('mongoose');
 
 let uristring = process.env.MONGODB_URI || 'mongodb://localhost/booknplay';
-mongoose.connect(uristring, {
+mongoose.connect('mongodb://localhost/booknplay', {
   useMongoClient: true,
 });
 const db = mongoose.connection;
