@@ -28,7 +28,7 @@ emailVerification.configure({
         }
     },
     verifyMailOptions: {
-        from: 'Do Not Reply: Book-N-Play <email.verification@booknplay.com>',
+        from: '"Book-N-Play" <email.verification@booknplay.com>',
         subject: 'Let\'s confirm your email!',
         html: 'Welcome to Book-N-Play!<br><br>Click the following link to verify your account:<br><p>${URL}</p>',
         text: 'Please confirm your account by clicking the following link: ${URL}'
@@ -245,7 +245,7 @@ router.post('/forgotPassword', function(req, res) {
 	      });
 	      let mailOptions = {
 	        to: user.email,
-	        from: 'password-robot@booknplay.com',
+	        from: '"Book-N-Play" <password-robot@booknplay.com>',
 	        subject: 'Reset your password',
 	        text: 'Hello ' + user.name + ',\n\n' +
 						'You are receiving this email because you (or someone else) requested a password reset for your account at Book-N-Play.\n' +
@@ -313,7 +313,7 @@ router.post('/reset-password/:token', function (req, res) {
       });
       let mailOptions = {
         to: user.email,
-        from: 'password-robot@booknplay.com',
+        from: '"Book-N-Play" <password-robot@booknplay.com>',
         subject: 'Your password has been changed',
         text: 'Hello ' + user.name + ',\n\n' +
           'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n\nRegards,\nBook-N-Play.'
