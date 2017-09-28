@@ -12,7 +12,8 @@ const mongo = require('mongodb');
 const User = require('./models/user');
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/booknplay', {
+let uristring = process.env.MONGODB_URI || 'mongodb://localhost/booknplay';
+mongoose.connect(uristring, {
   useMongoClient: true,
 });
 const db = mongoose.connection;

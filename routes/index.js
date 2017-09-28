@@ -6,6 +6,10 @@ router.get('/', ensureAuthenticated, function(req, res) {
 	res.render('index');
 });
 
+router.get('/events/events-list', ensureAuthenticated, function (req, res) {
+	res.render('events-list');
+});
+
 router.get('/events/new-event', ensureAuthenticated, function (req, res) {
 	res.render('new-event');
 });
