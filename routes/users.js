@@ -3,7 +3,10 @@ const router = express.Router();
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
+const nodemailer = require('nodemailer');
+const async = require('async');
 const emailVerification = require('email-verification')(mongoose);
+const crypto = require('crypto');
 
 mongoose.connect('mongodb://localhost/booknplay', {
   useMongoClient: true,
@@ -179,7 +182,7 @@ router.post('/login',
 
 router.get('/logout', function(req, res) {
 	req.logout();
-	req.flash('success_msg', 'You have been logged out.');
+	req.flash('success_msg', 'See ya later!');
 	res.redirect('/users/login');
 });
 
@@ -193,23 +196,135 @@ router.post('/forgotPassword', function(req, res) {
 		});
 	}
 	else {
-		User.getUserByUsername(usernameOrEmail, function (error, user) {
-			if (error) throw error;
-			if (user != null) {
-
-			}
-			else {
-				User.getUserByEmail(usernameOrEmail, function (error, userByEmail) {
+		async.waterfall([
+			function (done) {
+				crypto.randomBytes(20, function (error, buffer) {
 					if (error) throw error;
-					if (!userByEmail) {
-						req.flash('error_msg', 'An account with this username or email does not exist.');
-						res.redirect('/users/forgotPassword');
-					}
-
+					let token = buffer.toString('hex');
+					done(error, token);
 				});
+			},
+			function (token, done) {
+				User.getUserByUsername(usernameOrEmail, function (error, user) {
+					if (error) throw error;
+					if (user != null) {
+						user.resetPasswordToken = token;
+						user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+						user.save(function (error) {
+							if (error) throw error;
+							done(error, token, user);
+						});
+					}
+					else {
+						User.getUserByEmail(usernameOrEmail, function (error, userByEmail) {
+							if (error) throw error;
+							if (!userByEmail) {
+								req.flash('error_msg', 'An account with this username or email does not exist.');
+								res.redirect('/users/forgotPassword');
+							}
+							else {
+								userByEmail.resetPasswordToken = token;
+								userByEmail.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+								userByEmail.save(function (error) {
+									if (error) throw error;
+									done(error, token, userByEmail);
+								});
+
+							}
+						});
+					}
+				});
+			},
+			function (token, user, done) {
+				let smtpTransport = nodemailer.createTransport({
+	        service: 'Gmail',
+	        auth: {
+						user: 'booknplay7@gmail.com',
+            pass: 'booknplay'
+	        }
+	      });
+	      let mailOptions = {
+	        to: user.email,
+	        from: 'password-robot@booknplay.com',
+	        subject: 'Reset your password',
+	        text: 'You are receiving this email because you (or someone else) requested a password reset for your account at Book-N-Play.\n\n' +
+	          'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+	          'http://' + req.headers.host + '/users/reset-password/' + token + '\n\n' +
+	          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+	      };
+	      smtpTransport.sendMail(mailOptions, function(err) {
+	        req.flash('success_msg', 'An email has been sent to ' + user.email + ' with further instructions.');
+	        done(err, 'done');
+	      });
 			}
+		], function (error) {
+			if (error) throw error;
+			res.redirect('/users/login');
 		});
 	}
+});
+
+router.get('/reset-password/:token', function (req, res) {
+	User.getUserByResetPasswordToken(req.params.token, function (error, user) {
+		if (error) throw error;
+		if (!user) {
+			req.flash('error_msg', 'Your password reset request is either invalid or has expired.');
+			res.redirect('/users/forgotPassword');
+		} else {
+			res.render('reset-password', { token: req.params.token });
+		}
+	});
+});
+
+router.post('/reset-password/:token', function (req, res) {
+	async.waterfall([
+		function (done) {
+			User.getUserByResetPasswordToken(req.params.token, function (error, user) {
+				if (error) throw error;
+				if (!user) {
+					req.flash('error_msg', 'Your password reset request is either invalid or has expired.');
+					res.redirect('/users/forgotPassword');
+				} else {
+					if (req.body.password === req.body.confirmPassword) {
+						User.updateUserPasswordByEmail(user.email, function (error) {
+							if (error) throw error;
+							req.logIn(user, function (error) {
+								if (error) throw error;
+								done(error, user);
+							});
+						});
+					}
+					else {
+						req.flash('error_msg', 'The passwords do not match.');
+						res.redirect('back');
+					}
+				}
+			});
+		},
+		function(user, done) {
+      let smtpTransport = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+					user: 'booknplay7@gmail.com',
+					pass: 'booknplay'
+        }
+      });
+      let mailOptions = {
+        to: user.email,
+        from: 'password-robot@booknplay.com',
+        subject: 'Your password has been changed',
+        text: 'Hello ' + user.name + ',\n\n' +
+          'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n\nRegards,\nBook-N-Play.'
+      };
+      smtpTransport.sendMail(mailOptions, function(error) {
+        req.flash('success_msg', 'Your password has been changed successfully!');
+        done(error);
+      });
+    }
+	], function (error) {
+		if (error) throw error;
+		res.redirect('/');
+	});
 });
 
 module.exports = router;

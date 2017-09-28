@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/PankajB1997/BookNPlay#readme",
   "dependencies": {
+    "async": "^2.5.0",
     "bcryptjs": "*",
     "body-parser": "*",
     "connect-flash": "*",
@@ -29,6 +30,7 @@
     "express-validator": "*",
     "mongodb": "*",
     "mongoose": "*",
+    "nodemailer": "^4.1.1",
     "passport": "*",
     "passport-http": "*",
     "passport-local": "*"

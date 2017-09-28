@@ -15,7 +15,9 @@ let UserSchema = mongoose.Schema({
 	},
 	name: {
 		type: String
-	}
+	},
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
 });
 
 let User = module.exports = mongoose.model('User', UserSchema);
@@ -48,4 +50,25 @@ module.exports.comparePassword = function (candidatePassword, hash, callback) {
     	if(err) throw err;
     	callback(null, isMatch);
 	});
+}
+
+module.exports.getUserByResetPasswordToken = function (resetPasswordToken, callback) {
+  let query = { resetPasswordToken: resetPasswordToken, resetPasswordExpires: { $gt: Date.now() } };
+  User.findOne(query, callback);
+}
+
+module.exports.updateUserPasswordByEmail = function (email, callback) {
+  let query = { email: email };
+  User.findOne(query, function (error, user) {
+    if (error) throw error;
+    bcrypt.genSalt(10, function(err, salt) {
+  	    bcrypt.hash(user.password, salt, function(err, hash) {
+  	        user.password = hash;
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+  	        user.save();
+            callback(null);
+  	    });
+  	});
+  });
 }

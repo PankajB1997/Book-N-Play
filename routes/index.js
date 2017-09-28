@@ -28,6 +28,10 @@ router.get('/users/forgotPassword', ensureNotAuthenticated, function(req, res) {
 	res.render('forgotPassword');
 });
 
+router.get('/users/reset-password', ensureNotAuthenticated, function(req, res) {
+	res.render('reset-password');
+});
+
 function ensureNotAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {
 		req.flash('error_msg', 'You are already logged in.');
