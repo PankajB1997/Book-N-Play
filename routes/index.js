@@ -1,9 +1,38 @@
 var express = require('express');
 var router = express.Router();
 
-// Get Homepage
+const Event = require('../models/event');
+const User = require('../models/user');
+const async = require('async');
+const Handlebars = require('handlebars');
+
+Handlebars.registerHelper("formatDate", function(date) {
+	let monthNames = [
+    "January", "February", "March",
+    "April", "May", "June", "July",
+    "August", "September", "October",
+    "November", "December"
+  ];
+  let day = date.getDate();
+  let monthIndex = date.getMonth();
+  let year = date.getFullYear();
+  return monthNames[monthIndex] + ' ' + day + ', ' + year;
+});
+
+// Don't allow user access to events list or add new event feature if not logged in
 router.get('/', ensureAuthenticated, function(req, res) {
 	res.render('index');
+});
+
+// View upcoming events list only if the user is logged in
+router.get('/events/events-list', ensureAuthenticated, function (req, res) {
+	Event.getUpcomingEventsList(function (error, eventsList) {
+		res.render('events-list', { eventsList: eventsList });
+  });
+});
+
+router.get('/events/new-event', ensureAuthenticated, function (req, res) {
+	res.render('new-event');
 });
 
 function ensureAuthenticated(req, res, next) {
