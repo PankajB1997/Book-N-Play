@@ -38,7 +38,8 @@ emailVerification.configure({
     verifyMailOptions: {
         from: '"Book-N-Play" <email.verification@booknplay.com>',
         subject: 'Let\'s confirm your email!',
-        html: 'Welcome to Book-N-Play!<br><br>Click the following link to verify your account:<br><p>${URL}</p>',
+        html: 'Welcome to Book-N-Play!<br><br>Click the following link to verify your account:<br><p>' + '${URL}' + '</p>',
+        text: 'Please confirm your account by clicking the following link: ${URL}',
     }
 }, function(error, options) {
   if (error) throw error;
