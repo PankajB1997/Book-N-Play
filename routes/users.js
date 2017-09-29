@@ -156,7 +156,7 @@ passport.use(new LocalStrategy(
 					if (isMatch) {
 						return done(null, user);
 					} else {
-						return done(null, false, {message: 'The password is invalid.'});
+						return done(null, false, {message: 'Either the username/email or the password is invalid.'});
 					}
 				});
 			}
@@ -171,7 +171,7 @@ passport.use(new LocalStrategy(
 						if (isMatch) {
 							return done(null, userByEmail);
 						} else {
-							return done(null, false, {message: 'The password is invalid.'});
+							return done(null, false, {message: 'Either the username/email or the password is invalid.'});
 						}
 					});
 				});
