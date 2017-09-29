@@ -88,37 +88,44 @@ router.post('/register', function(req, res) {
 			errors: errors,
 		});
 	} else {
-		newUser = new User({
-			name: name,
-			email: email,
-			username: username,
-			password: password,
-		});
+    User.getUserByUsername(username, function (error, user) {
+      if (error) throw error;
+      if (user != null) {
+        req.flash('error_msg', 'An account with the provided username already exists.');
+  			return res.redirect('/users/register');
+      } else {
+        newUser = new User({
+    			name: name,
+    			email: email,
+    			username: username,
+    			password: password,
+    		});
+        // Email verification
+      	let URL;
+      	emailVerification.createTempUser(newUser, function(error, existingPersistentUser, newTempUser) {
+          if (error) throw error;
+          // user already exists in persistent collection...
+          if (existingPersistentUser) {
+      			req.flash('error_msg', 'You have already signed up and confirmed your account. Did you forget your password?');
+      			return res.redirect('/users/login');
+      		}
+          // a new user
+          if (newTempUser) {
+              URL = newTempUser[emailVerification.options.URLFieldName];
+              emailVerification.sendVerificationEmail(email, URL, function(error, info) {
+                  if (error) throw error;
+                  req.flash('success_msg', 'A confirmation email is on the way! Kindly verify your email to complete your registration.');
+      						return res.redirect('/users/login');
+              });
+          // user already exists in temporary collection...
+          } else {
+      			req.flash('error_msg', 'You have already signed up. Please check your email to verify your account.');
+      			return res.redirect('/users/login');
+          }
+      	});
+      }
+    });
 	}
-
-	// Email verification
-	let URL;
-	emailVerification.createTempUser(newUser, function(error, existingPersistentUser, newTempUser) {
-    if (error) throw error;
-    // user already exists in persistent collection...
-    if (existingPersistentUser) {
-			req.flash('error_msg', 'You have already signed up and confirmed your account. Did you forget your password?');
-			return res.redirect('/users/login');
-		}
-    // a new user
-    if (newTempUser) {
-        URL = newTempUser[emailVerification.options.URLFieldName];
-        emailVerification.sendVerificationEmail(email, URL, function(error, info) {
-            if (error) throw error;
-            req.flash('success_msg', 'A confirmation email is on the way! Kindly verify your email to complete your registration.');
-						return res.redirect('/users/login');
-        });
-    // user already exists in temporary collection...
-    } else {
-			req.flash('error_msg', 'You have already signed up. Please check your email to verify your account.');
-			return res.redirect('/users/login');
-    }
-	});
 });
 
 // user accesses the link that is sent
