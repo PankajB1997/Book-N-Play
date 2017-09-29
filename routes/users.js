@@ -25,7 +25,7 @@ const User = require('../models/user');
 
 // Email Verification Configuration
 emailVerification.configure({
-    verificationURL: 'http://localhost:3000/users/verify-email/${URL}',
+    verificationURL: 'https://book-n-play.herokuapp.com/users/verify-email/${URL}',
     persistentUserModel: User,
     tempUserCollection: 'tempUser',
     transportOptions: {
@@ -39,7 +39,6 @@ emailVerification.configure({
         from: '"Book-N-Play" <email.verification@booknplay.com>',
         subject: 'Let\'s confirm your email!',
         html: 'Welcome to Book-N-Play!<br><br>Click the following link to verify your account:<br><p>${URL}</p>',
-        text: 'Please confirm your account by clicking the following link: ${URL}'
     }
 }, function(error, options) {
   if (error) throw error;
@@ -78,7 +77,7 @@ router.post('/register', function(req, res) {
 	else req.checkBody('email', 'Email is not valid').isEmail();
 	req.checkBody('username', 'Username is required').notEmpty();
 	req.checkBody('password', 'Password is required').notEmpty();
-  req.checkBody('password', 'Password should be a combination of uppercase, lowercase characters and numbers, with minimum 8 characters in length.').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/, "i");
+  req.checkBody('password', 'Password should be a combination of uppercase, lowercase characters and numbers (no special characters), with minimum 8 characters in length.').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/, "i");
 	req.checkBody('confirmPassword', 'Passwords do not match').equals(req.body.password);
 
 	let errors = req.validationErrors();
