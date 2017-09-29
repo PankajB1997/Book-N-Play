@@ -78,6 +78,7 @@ router.post('/register', function(req, res) {
 	else req.checkBody('email', 'Email is not valid').isEmail();
 	req.checkBody('username', 'Username is required').notEmpty();
 	req.checkBody('password', 'Password is required').notEmpty();
+  req.checkBody('password', 'Password should be a combination of uppercase, lowercase characters and numbers, with minimum 8 characters in length.').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/, "i");
 	req.checkBody('confirmPassword', 'Passwords do not match').equals(req.body.password);
 
 	let errors = req.validationErrors();
